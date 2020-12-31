@@ -1,1 +1,1 @@
-Couldn't find that process type (worker).
+worker: node worker.js
