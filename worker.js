@@ -17,7 +17,7 @@ let rsmq = new RedisSMQ({
 const start = () => {
     console.log('Worker Initiated!')
     setInterval(() => {
-        rsmq.receiveMessage({qname: QUEUENAME}, (err, res) => {
+        const r = rsmq.receiveMessage({qname: QUEUENAME}, (err, res) => {
             if (err) {
                 console.error(err)
                 return
@@ -35,6 +35,7 @@ const start = () => {
                 console.log('No message in queue')
             }
         })
+        console.log(`Received ${r}`)
     }, 2000)
 }
 start()
