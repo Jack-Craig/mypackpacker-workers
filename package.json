@@ -1,0 +1,19 @@
+{
+  "name": "mypackpacker-workers",
+  "version": "1.0.0",
+  "description": "Service Workers for MyPackPacker.com",
+  "main": "worker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jack-Craig/mypackpacker-workers.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jack-Craig/mypackpacker-workers/issues"
+  },
+  "homepage": "https://github.com/Jack-Craig/mypackpacker-workers#readme"
+}
