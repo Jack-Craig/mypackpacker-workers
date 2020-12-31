@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Jack-Craig/mypackpacker-workers/issues"
   },
-  "homepage": "https://github.com/Jack-Craig/mypackpacker-workers#readme"
+  "homepage": "https://github.com/Jack-Craig/mypackpacker-workers#readme",
+  "dependencies": {
+    "rsmq": "^0.12.2"
+  }
 }
