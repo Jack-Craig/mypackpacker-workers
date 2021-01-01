@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Jack-Craig/mypackpacker-workers#readme",
   "dependencies": {
+    "mongoose": "^5.11.9",
     "rsmq": "^0.12.2"
   }
 }

@@ -1,4 +1,5 @@
 const RedisSMQ = require('rsmq')
+const mongoose = require('mongoose')
 
 const QUEUENAME = 'all_messages'
 const NAMESPACE = 'packpacker'
@@ -7,34 +8,38 @@ const REDIS_HOST = process.env.REDIS_HOST
 const REDIS_PORT = process.env.REDIS_PORT
 const REDIS_PASS = process.env.REDIS_PASS
 
+const handleAdminMessage = require('./subprocessess/adminMessages')
+
 let rsmq = new RedisSMQ({
     host: REDIS_HOST,
     port: REDIS_PORT,
     ns: NAMESPACE,
     password: REDIS_PASS
 })
-
-const start = () => {
-    console.log('Worker Initiated!')
+mongoose.connect(proccess.env.MONGO_URI).then(() => {
+    console.log('Mongo Connected, Worker Initiated!')
     setInterval(() => {
-        const r = rsmq.receiveMessage({ qname: QUEUENAME }, (err, res) => {
+        rsmq.receiveMessage({ qname: QUEUENAME }, (err, res) => {
             if (err) {
                 console.error(err)
                 return
             }
             if (res.id) {
-                console.log(`Received ${res.id}, ${res.message}`)
-                rsmq.deleteMessage({ qname: QUEUENAME, id: res.id }, e => {
-                    if (e) {
-                        console.error(e)
-                        return
-                    }
-                    console.log('Deleted message')
+                console.log(`Received ${res.id}`)
+                let mJSON = JSON.parse(res.message)
+                mJSON.isAdminMessage = mJSON.isAdminMessage === 'true'
+                mJSON.isWorkerMessage = mJSON.isWorkerMessage === 'true'
+                let promise = null
+                if (mJSON.isWorkerMessage === 'true') {
+
+                }
+                if (mJSON.isAdminMessage === 'true') {
+                    promise = handleAdminMessage(mJSON)
+                }
+                promise.finally(() => {
+                    rsmq.deleteMessage({ qname: QUEUENAME, id: res.id })
                 })
-            } else {
-                console.log('No message in queue')
             }
         })
     }, 2000)
-}
-start()
+})
