@@ -30,10 +30,10 @@ mongoose.connect(proccess.env.MONGO_URI).then(() => {
                 mJSON.isAdminMessage = mJSON.isAdminMessage === 'true'
                 mJSON.isWorkerMessage = mJSON.isWorkerMessage === 'true'
                 let promise = null
-                if (mJSON.isWorkerMessage === 'true') {
+                if (mJSON.isWorkerMessage) {
 
                 }
-                if (mJSON.isAdminMessage === 'true') {
+                if (mJSON.isAdminMessage) {
                     promise = handleAdminMessage(mJSON)
                 }
                 promise.finally(() => {
