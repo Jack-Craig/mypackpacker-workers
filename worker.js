@@ -37,7 +37,7 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
                     promise = handleAdminMessage(mJSON)
                 }
                 promise.finally(() => {
-                    rsmq.deleteMessage({ qname: QUEUENAME, id: res.id })
+                    rsmq.deleteMessage({ qname: QUEUENAME, id: res.id }, (err, res) => {})
                 })
             }
         })
