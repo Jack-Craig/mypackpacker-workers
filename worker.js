@@ -16,7 +16,7 @@ let rsmq = new RedisSMQ({
     ns: NAMESPACE,
     password: REDIS_PASS
 })
-mongoose.connect(proccess.env.MONGO_URI).then(() => {
+mongoose.connect(process.env.MONGO_URI).then(() => {
     console.log('Mongo Connected, Worker Initiated!')
     setInterval(() => {
         rsmq.receiveMessage({ qname: QUEUENAME }, (err, res) => {
