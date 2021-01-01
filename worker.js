@@ -17,25 +17,24 @@ let rsmq = new RedisSMQ({
 const start = () => {
     console.log('Worker Initiated!')
     setInterval(() => {
-        const r = rsmq.receiveMessage({qname: QUEUENAME}, (err, res) => {
+        const r = rsmq.receiveMessage({ qname: QUEUENAME }, (err, res) => {
             if (err) {
                 console.error(err)
                 return
             }
             if (res.id) {
-                console.log(`Received message ${res.id}`)
-                rsmq.deleteMessage({qname: QUEUENAME, id: res.id}, e => {
+                console.log(`Received ${res.id}, ${res.message}`)
+                rsmq.deleteMessage({ qname: QUEUENAME, id: res.id }, e => {
                     if (e) {
                         console.error(e)
                         return
                     }
                     console.log('Deleted message')
                 })
-            } {
+            } else {
                 console.log('No message in queue')
             }
         })
-        console.log(`Received ${r}`)
     }, 2000)
 }
 start()
