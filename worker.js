@@ -1,5 +1,6 @@
 const RedisSMQ = require('rsmq')
 const mongoose = require('mongoose')
+require('dotenv').config()
 
 const QUEUENAME = 'all_messages'
 const NAMESPACE = 'packpacker'
@@ -9,6 +10,7 @@ const REDIS_PORT = process.env.REDIS_PORT
 const REDIS_PASS = process.env.REDIS_PASS
 
 const handleAdminMessage = require('./subprocessess/adminMessages')
+const handleAnalyticsCompile = require('./subprocessess/analyticsCompiler')
 
 let rsmq = new RedisSMQ({
     host: REDIS_HOST,
@@ -28,12 +30,12 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
                 console.log(`Received ${res.id}`)
                 let mJSON = JSON.parse(res.message)
                 mJSON.isAdminMessage = mJSON.isAdminMessage === 'true'
-                mJSON.isWorkerMessage = mJSON.isWorkerMessage === 'true'
                 let promise = null
                 if (mJSON.isWorkerMessage) {
-
-                }
-                if (mJSON.isAdminMessage) {
+                    switch (mJSON.type) {
+                        case 'analyticsCompile': promise = handleAnalyticsCompile(mJSON); break;
+                    }
+                } else if (mJSON.isAdminMessage) {
                     promise = handleAdminMessage(mJSON)
                 }
                 promise.finally(() => {
