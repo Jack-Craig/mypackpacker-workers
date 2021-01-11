@@ -6,7 +6,7 @@ const BuildModel = mongoose.model('builds', new mongoose.Schema({
     active: Boolean,
     priceRange: {},
     displayName: String,
-    build: {},
+    build: [],
     published: {type: Boolean, default: false},
     publishDate: Date,
     description: {type: String, default: ''},

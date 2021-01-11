@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const ProductModel = mongoose.model('product', new mongoose.Schema({
     displayName: String, // Same as ID
     categoryID: String,
-    fuzzyNames: [String],
+    fuzzyNames: {type: [String], default: []},
     brand: String,
     priceInfo: {
         /**
@@ -33,7 +33,8 @@ const ProductModel = mongoose.model('product', new mongoose.Schema({
         maxPrice: Number
     },
     userCreated: {type: Boolean, default: false},
-    publicalyViewable: {type: Boolean, default: false}
+    authorUserId: {type: mongoose.Schema.Types.ObjectId, required: false},
+    dateCreated: {type: Date, default: Date.now}
 }, {strict: true}))
 
 module.exports = ProductModel

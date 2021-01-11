@@ -11,6 +11,7 @@ const REDIS_PASS = process.env.REDIS_PASS
 
 const handleAdminMessage = require('./subprocessess/adminMessages')
 const handleAnalyticsCompile = require('./subprocessess/analyticsCompiler')
+const handleCullGear = require('./subprocessess/cullGearZombies')
 
 let rsmq = new RedisSMQ({
     host: REDIS_HOST,
@@ -34,6 +35,7 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
                 if (mJSON.isWorkerMessage) {
                     switch (mJSON.type) {
                         case 'analyticsCompile': promise = handleAnalyticsCompile(mJSON); break;
+                        case 'cullGearZombies': promise = handleCullGear(mJSON); break;
                     }
                 } else if (mJSON.isAdminMessage) {
                     promise = handleAdminMessage(mJSON)
