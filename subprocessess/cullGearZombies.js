@@ -1,4 +1,3 @@
-const UserModel = require('../models/user')
 const ProductModel = require('../models/Product')
 
 const handleMessage = (messageObj) => new Promise(async (res, rej) => {

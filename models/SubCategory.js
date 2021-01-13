@@ -3,9 +3,11 @@ const mongoose = require('mongoose')
 const SubCategoryModel = mongoose.model('category', new mongoose.Schema({
     _id: String,
     displayName: String,
-    recommendedCap: {type: Number, default: 1},
     count: Number,
-    weightCat: String
+    weightCat: String,
+    fields: [],
+    vsStore: {},
+    filters: []
 }, {collection: 'category'}))
 
 module.exports = SubCategoryModel
