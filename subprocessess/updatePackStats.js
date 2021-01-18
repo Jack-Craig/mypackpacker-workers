@@ -63,8 +63,6 @@ const func = (messageObj) => new Promise(async (res, rej) => {
     for (const mm of minmax) {
         update.vsStore[mm.vsKey] = mm.vsStore
     }
-    console.log(minmax)
-    console.log(update)
     await CategoryModel.findByIdAndUpdate(catKey, update).lean()
     console.log('Pushed update')
     res()
