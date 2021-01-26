@@ -18,7 +18,7 @@
   "homepage": "https://github.com/Jack-Craig/mypackpacker-workers#readme",
   "dependencies": {
     "dotenv": "^8.2.0",
-    "mongoose": "^5.11.9",
+    "mongoose": "^5.11.13",
     "rsmq": "^0.12.2"
   }
 }
