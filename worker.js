@@ -36,8 +36,6 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
                     mJSON.isWorkerMessage = mJSON.isWorkerMessage === 'true'
                 if (typeof mJSON.isAdminMessage === 'string')
                     mJSON.isAdminMessage = mJSON.isAdminMessage === 'true'
-                console.log(res.message)
-                console.log(mJSON)
                 let promise = null
                 if (mJSON.isWorkerMessage) {
                     switch (mJSON.type) {
