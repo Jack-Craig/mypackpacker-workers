@@ -32,8 +32,10 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
             if (res.id) {
                 console.log(`Received ${res.id}`)
                 let mJSON = JSON.parse(res.message)
-                //mJSON.isWorkerMessage = mJSON.isWorkerMessage === 'true'
-                //mJSON.isAdminMessage = mJSON.isAdminMessage === 'true'
+                if (typeof mJSON.isWorkerMessage === 'string')
+                    mJSON.isWorkerMessage = mJSON.isWorkerMessage === 'true'
+                if (typeof mJSON.isAdminMessage === 'string')
+                    mJSON.isAdminMessage = mJSON.isAdminMessage === 'true'
                 console.log(res.message)
                 console.log(mJSON)
                 let promise = null
@@ -48,7 +50,7 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
                     promise = handleAdminMessage(mJSON)
                 }
                 promise.finally(() => {
-                    rsmq.deleteMessage({ qname: QUEUENAME, id: res.id }, (err, res) => {})
+                    rsmq.deleteMessage({ qname: QUEUENAME, id: res.id }, (err, res) => { })
                 })
             }
         })
