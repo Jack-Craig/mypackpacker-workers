@@ -7,6 +7,6 @@ const MessageModel = mongoose.model('message', new mongoose.Schema({
   date: {type: Date, default: Date.now},
   isAdminMessage: Boolean,
   isWorkerMessage: Boolean
-}, {collection: 'messages'}))
+}, {collection: 'messages', strict:false}))
  
 module.exports = MessageModel
