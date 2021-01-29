@@ -32,8 +32,8 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
             if (res.id) {
                 console.log(`Received ${res.id}`)
                 let mJSON = JSON.parse(res.message)
-                mJSON.isWorkerMessage = mJSON.isWorkerMessage === 'true'
-                mJSON.isAdminMessage = mJSON.isAdminMessage === 'true'
+                //mJSON.isWorkerMessage = mJSON.isWorkerMessage === 'true'
+                //mJSON.isAdminMessage = mJSON.isAdminMessage === 'true'
                 console.log(res.message)
                 console.log(mJSON)
                 let promise = null
