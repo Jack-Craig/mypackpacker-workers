@@ -13,7 +13,6 @@ const func = (messageObj) => new Promise(async (res, rej) => {
     // Shopping List: 
     // 1. filter min/maxes for list fields
     // 2. count of documents in collection
-    const catKey = messageObj.content
     const allPacks = await BuildModel.find({published: true}).lean()
     let minmax = [
         {key:'priceRange.minPrice', vsKey: 'fP', type: 'list', vsStore: null},
@@ -53,11 +52,11 @@ const func = (messageObj) => new Promise(async (res, rej) => {
         }
     }
     
-    let update = {count: allGear.length, vsStore:{}}
+    let update = {count: allPacks.length, vsStore:{}}
     for (const mm of minmax) {
         update.vsStore[mm.vsKey] = mm.vsStore
     }
-    await BuildModel.findByIdAndUpdate(0, update).lean()
+    await BuildModel.findByIdAndUpdate('6018bdb379eaf0da8c509892', update).lean()
     console.log('Pushed update')
     res()
 })
