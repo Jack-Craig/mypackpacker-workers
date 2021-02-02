@@ -19,7 +19,7 @@ const func = (messageObj) => new Promise(async (res, rej) => {
     let minmax = [
         {key:'lowestPriceRange.minPrice', vsKey: 'fP', type: 'list', vsStore: null},
         {key:'productInfo.weight', vsKey: 'fW', type: 'list', vsStore: null},
-        {key: 'productInfo.rating.r', vsKey: 'rat', type: 'in', vsStore: null}
+        {key: 'productInfo.rating.r', vsKey: 'rat', type: 'list', vsStore: null}
     ]
     for (const filter of category.filters) {
         // Could store vsStore here which would be fine for list filters, but not for selects and others if a brand or whatever gets removed
@@ -33,8 +33,6 @@ const func = (messageObj) => new Promise(async (res, rej) => {
             let e = get(mm.key, item)
             if (e == undefined)
                 continue
-            if (mm.key === 'rat')
-                e = Math.round(e)
             switch (mm.type) {
                 case 'list':
                     if (mm.vsStore == null)
