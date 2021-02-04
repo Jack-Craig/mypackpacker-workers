@@ -9,5 +9,6 @@ const handleCullPacks = require('./subprocessess/cullPackZombies')
 const handlePackFilters = require('./subprocessess/updatePackFilters')
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
-    handlePackFilters().then(async done=>await mongoose.disconnect())
+    handleUpdatePackStats({content: 'tents'}).then(async done=>await mongoose.disconnect())
+    //handlePackFilters().then(async done=>await mongoose.disconnect())
 })

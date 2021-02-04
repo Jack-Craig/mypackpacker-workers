@@ -62,6 +62,10 @@ const func = (messageObj) => new Promise(async (res, rej) => {
     
     let update = {count: allGear.length, vsStore:{}}
     for (const mm of minmax) {
+        if (mm.type === 'in') {
+            mm.vsStore.sort()
+        }
+        console.log(mm.vsStore)
         update.vsStore[mm.vsKey] = mm.vsStore
     }
     await CategoryModel.findByIdAndUpdate(catKey, update).lean()
