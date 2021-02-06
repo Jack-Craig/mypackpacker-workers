@@ -15,6 +15,7 @@ const handleCullGear = require('./subprocessess/cullGearZombies')
 const handleUpdatePackStats = require('./subprocessess/updatePackStats')
 const handleCullPacks = require('./subprocessess/cullPackZombies')
 const handleUpdatePackFilters = require('./subprocessess/updatePackFilters')
+const handleUpdateGearStats = require('./subprocessess/updateGearStats')
 
 let rsmq = new RedisSMQ({
     host: REDIS_HOST,
@@ -45,6 +46,7 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
                         case 'updatePackStats': promise = handleUpdatePackStats(mJSON); break; // Update category/product filters
                         case 'cullPackZombies': promise = handleCullPacks(mJSON); break;
                         case 'updatePackFilters': promise = handleUpdatePackFilters(mJSON); break;
+                        case 'updateGearStats': promise = handleUpdateGearStats(mJSON); break;
                     }
                 } else if (mJSON.isAdminMessage) {
                     promise = handleAdminMessage(mJSON)
