@@ -3,7 +3,7 @@ const BuildModel = require('../models/Build')
 const handleMessage = (messageObj) => new Promise(async (res, rej) => {
     // Create aggregation pipeline to get all ids of of zombie gear items
     let oneWeekAgo = new Date()
-    oneWeekAgo.setDate(oneWeekAgo.getDate()-7) // 7 days ago
+    oneWeekAgo.setDate(oneWeekAgo.getDate()-90) // 3 months ago
     const r = await BuildModel.find({ sessionID: {$exists: true}, authorUserID: {$exists: false}, dateCreated:{$lte:oneWeekAgo}}, {_id:1}).lean()
     let ids = []
     for (const idObj of r)
