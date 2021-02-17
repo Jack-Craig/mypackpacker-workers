@@ -9,6 +9,7 @@ const handleMessage = (messageObj) => new Promise(async (res, rej) => {
     const numUsers = await UserModel.countDocuments()
     const numGear = await GearModel.countDocuments()
     const packs = await PackModel.find({},{_id:0,sessionID:1,authorUserID:1}).lean()
+    const n_sessions = await SessionModel.countDocuments()
     const entryNum = await AnalyticsModel.findByIdAndUpdate(MASTER_ID, {'$inc':{numEntries:1}}, {new: true}).lean()
     let numPacks = packs.length
     let sessionPacks = 0
@@ -23,7 +24,8 @@ const handleMessage = (messageObj) => new Promise(async (res, rej) => {
         numUsers: numUsers,
         numGearItems: numGear,
         numPacks: numPacks,
-        numSessionPacks: sessionPacks
+        numSessionPacks: sessionPacks,
+        numSessions: n_sessions
     })
     res()
 })
