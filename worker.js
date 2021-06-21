@@ -52,7 +52,17 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
                     promise = handleAdminMessage(mJSON)
                 }
                 promise.finally(() => {
-                    rsmq.deleteMessage({ qname: QUEUENAME, id: res.id }, (err, res) => { })
+                    rsmq.deleteMessage({ qname: QUEUENAME, id: res.id }, (err, resp) => {
+                        if (err) {
+                            console.error(err)
+                            return
+                        }
+                        if (resp == 1) {
+                            console.log(`${res.id} Deleted`)
+                        } else {
+                            console.log(`${res.id} Not Found`)
+                        }
+                    })
                 })
             }
         })
