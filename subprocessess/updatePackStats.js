@@ -74,7 +74,6 @@ const func = (messageObj) => new Promise(async (res, rej) => {
             }
         }
     }
-
     let update = { count: allGear.length, vsStore: {} }
     for (const mm of minmax) {
         if (mm.type === 'in' && mm.vsStore != null) {
@@ -82,9 +81,10 @@ const func = (messageObj) => new Promise(async (res, rej) => {
         }
         update.vsStore[mm.vsKey] = mm.vsStore
     }
-    await CategoryModel.findByIdAndUpdate(catKey, update).lean()
-    console.log('Pushed update')
-    res()
+    CategoryModel.findByIdAndUpdate(catKey, update).then(rawRes => {
+        console.log(rawRes)
+        res()
+    })
 })
 
 module.exports = func

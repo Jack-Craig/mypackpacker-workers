@@ -8,6 +8,6 @@ const SubCategoryModel = mongoose.model('category', new mongoose.Schema({
     fields: [],
     vsStore: {},
     filters: []
-}, {collection: 'category'}))
+}, {collection: 'category', strict: false}))
 
 module.exports = SubCategoryModel
