@@ -82,7 +82,6 @@ const func = (messageObj) => new Promise(async (res, rej) => {
         update.vsStore[mm.vsKey] = mm.vsStore
     }
     CategoryModel.findByIdAndUpdate(catKey, update).then(rawRes => {
-        console.log(rawRes)
         res()
     })
 })
