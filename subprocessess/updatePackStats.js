@@ -27,7 +27,7 @@ const func = (messageObj) => new Promise(async (res, rej) => {
         minmax.push({ key: filter.key, type: filter.t, vsKey: filter.vsKey, vsStore: null })
     }
 
-    const allGear = await ProductModel.find({ categoryID: catKey }).lean()
+    const allGear = await ProductModel.find({ categoryID: catKey, userCreated: false}).lean()
     let helperCache = {} // Used for finding duplicates
     for (const item of allGear) {
         for (let mm of minmax) {
