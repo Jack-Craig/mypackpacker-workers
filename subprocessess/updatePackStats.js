@@ -10,6 +10,7 @@ const get = (keyPath, obj) => {
     return subObj
 }
 
+// Updates the vsStore field in the category documents. Finds mins and maxes of "list" fields and unique values of "in" fields
 const func = (messageObj) => new Promise(async (res, rej) => {
     // Shopping List: 
     // 1. filter min/maxes for list fields
@@ -17,26 +18,26 @@ const func = (messageObj) => new Promise(async (res, rej) => {
     const catKey = messageObj.content
     const category = await CategoryModel.findById(catKey).lean()
     let minmax = [
-        {key:'lowestPriceRange.minPrice', vsKey: 'fP', type: 'list', vsStore: null},
-        {key:'productInfo.weight', vsKey: 'fW', type: 'list', vsStore: null},
-        {key: 'productInfo.rating.r', vsKey: 'rat', type: 'list', vsStore: null}
+        { key: 'lowestPriceRange.minPrice', vsKey: 'fP', type: 'list', vsStore: null },
+        { key: 'productInfo.weight', vsKey: 'fW', type: 'list', vsStore: null },
+        { key: 'productInfo.rating.r', vsKey: 'rat', type: 'list', vsStore: null }
     ]
     for (const filter of category.filters) {
         // Could store vsStore here which would be fine for list filters, but not for selects and others if a brand or whatever gets removed
-        minmax.push({key: filter.key, type: filter.t, vsKey: filter.vsKey, vsStore: null})
+        minmax.push({ key: filter.key, type: filter.t, vsKey: filter.vsKey, vsStore: null })
     }
 
-    const allGear = await ProductModel.find({categoryID: catKey}).lean()
+    const allGear = await ProductModel.find({ categoryID: catKey }).lean()
     let helperCache = {} // Used for finding duplicates
     for (const item of allGear) {
         for (let mm of minmax) {
             let e = get(mm.key, item)
-            if (e == undefined)
+            if (e == undefined || e === '')
                 continue
             switch (mm.type) {
                 case 'list':
                     if (mm.vsStore == null)
-                        mm.vsStore = {min: e, max: e}
+                        mm.vsStore = { min: e, max: e }
                     else {
                         if (mm.vsStore.min > e) {
                             mm.vsStore.min = e
@@ -56,16 +57,29 @@ const func = (messageObj) => new Promise(async (res, rej) => {
                         mm.vsStore.push(e)
                     }
                     break
+                case 'inter':
+                    if (mm.vsStore == null)
+                        mm.vsStore = []
+                    if (!helperCache.hasOwnProperty(mm.key)) {
+                        helperCache[mm.key] = {}
+                    }
+                    for (const valToCheck of e) {
+                        if (!helperCache[mm.key][valToCheck]) {
+                            helperCache[mm.key][valToCheck] = true
+                            mm.vsStore.push(valToCheck)
+                        }
+                    }
+
+                    break
             }
         }
     }
-    
-    let update = {count: allGear.length, vsStore:{}}
+
+    let update = { count: allGear.length, vsStore: {} }
     for (const mm of minmax) {
-        if (mm.type === 'in') {
+        if (mm.type === 'in' && mm.vsStore != null) {
             mm.vsStore.sort()
         }
-        console.log(mm.vsStore)
         update.vsStore[mm.vsKey] = mm.vsStore
     }
     await CategoryModel.findByIdAndUpdate(catKey, update).lean()

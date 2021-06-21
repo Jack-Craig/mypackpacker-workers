@@ -35,6 +35,6 @@ const ProductModel = mongoose.model('product', new mongoose.Schema({
     userCreated: {type: Boolean, default: false},
     authorUserId: {type: mongoose.Schema.Types.ObjectId, required: false},
     dateCreated: {type: Date, default: Date.now}
-}, {strict: true}))
+}, {strict: false}))
 
 module.exports = ProductModel
