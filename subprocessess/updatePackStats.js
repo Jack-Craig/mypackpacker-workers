@@ -1,7 +1,7 @@
 const CategoryModel = require('../models/SubCategory')
 const ProductModel = require('../models/Product')
 
-const K_PARTITIONS = 10
+const K_PARTITIONS = 20
 
 const get = (keyPath, obj) => {
     const keys = keyPath.split('.')

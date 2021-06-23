@@ -19,7 +19,7 @@ const handlePackFilters = require('./subprocessess/updatePackFilters')
 const handleGearStats = require('./subprocessess/updateGearStats')
 
 mongoose.connect(process.env.MONGO_URI).then(async () => {
-    handleUpdatePackStats({content:'water-treatment'}).finally(() => {
+    handleUpdatePackStats({content:'backpacks'}).finally(() => {
         mongoose.disconnect()
     })
 })
