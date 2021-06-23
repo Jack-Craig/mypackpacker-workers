@@ -39,7 +39,7 @@ const func = (messageObj) => new Promise(async (res, rej) => {
             switch (mm.type) {
                 case 'list':
                     if (mm.vsStore == null)
-                        mm.vsStore = { min: e, max: e, valSet: new Set([e]), valCount: { e: 1 } } // valSet and valCount are temporary, used for constructing bars later
+                        mm.vsStore = { min: e, max: e, valSet: new Set([e]), valCount: { [e]: 1 } } // valSet and valCount are temporary, used for constructing bars later
                     else {
                         if (mm.vsStore.min > e) {
                             mm.vsStore.min = e
@@ -88,10 +88,10 @@ const func = (messageObj) => new Promise(async (res, rej) => {
         } else if (mm.type === 'list') {
             // Create bars for the histogram
             let sortedUniqueVals = Array.from(mm.vsStore.valSet)
-            sortedUniqueVals.sort()
+            sortedUniqueVals.sort((a, b) => a - b)
             let absWidth = mm.vsStore.max - mm.vsStore.min
             let partitionWidth = absWidth / K_PARTITIONS
-            let curUpper = mm.vsStore.min
+            let curUpper = mm.vsStore.min + partitionWidth
 
             let histData = {
                 bars: [],
@@ -99,10 +99,10 @@ const func = (messageObj) => new Promise(async (res, rej) => {
                 partitionWidth: partitionWidth,
             }
 
-            for (let i = 0; i < K_PARTITIONS && sortedUniqueVals.length; i++, curUpper += partitionWidth) {
+            for (let i = 0; i < K_PARTITIONS; i++, curUpper += partitionWidth) {
                 let barCount = 0
                 while (sortedUniqueVals.length) {
-                    if (curUpper > sortedUniqueVals[0]) {
+                    if (curUpper >= sortedUniqueVals[0]) {
                         barCount += mm.vsStore.valCount[sortedUniqueVals.shift()]
                     } else {
                         break
@@ -114,6 +114,7 @@ const func = (messageObj) => new Promise(async (res, rej) => {
             delete mm.vsStore.valSet
             delete mm.vsStore.valCount
         }
+
         update.vsStore[mm.vsKey] = mm.vsStore
     }
     CategoryModel.findByIdAndUpdate(catKey, update).then(_ => {

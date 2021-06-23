@@ -89,7 +89,7 @@ const handleMessage = (mObj) => new Promise(async (res, rej) => {
             sortedUniqueVals[key1] = {}
             for (const key2 of Object.keys(uniqueVals[key1])) {
                 let newArr = Array.from(uniqueVals[key1][key2])
-                newArr.sort()
+                newArr.sort((a, b) => a - b)
                 sortedUniqueVals[key1][key2] = newArr
             }
         }
