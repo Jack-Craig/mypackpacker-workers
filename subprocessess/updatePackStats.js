@@ -122,7 +122,6 @@ const func = (messageObj) => new Promise(async (res, rej) => {
                     histData.bars.push(barCount)
                 }
                 mm.vsStore.hist[pType] = histData
-                console.log(histData)
             }
         }
         update.vsStore[mm.vsKey] = mm.vsStore
