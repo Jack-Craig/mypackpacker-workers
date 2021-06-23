@@ -1,6 +1,8 @@
 const CategoryModel = require('../models/SubCategory')
 const ProductModel = require('../models/Product')
 
+const K_PARTITIONS = 10
+
 const get = (keyPath, obj) => {
     const keys = keyPath.split('.')
     let subObj = obj
@@ -27,7 +29,7 @@ const func = (messageObj) => new Promise(async (res, rej) => {
         minmax.push({ key: filter.key, type: filter.t, vsKey: filter.vsKey, vsStore: null })
     }
 
-    const allGear = await ProductModel.find({ categoryID: catKey, userCreated: false}).lean()
+    const allGear = await ProductModel.find({ categoryID: catKey, userCreated: false }).lean()
     let helperCache = {} // Used for finding duplicates
     for (const item of allGear) {
         for (let mm of minmax) {
@@ -37,13 +39,19 @@ const func = (messageObj) => new Promise(async (res, rej) => {
             switch (mm.type) {
                 case 'list':
                     if (mm.vsStore == null)
-                        mm.vsStore = { min: e, max: e }
+                        mm.vsStore = { min: e, max: e, valSet: new Set([e]), valCount: { e: 1 } } // valSet and valCount are temporary, used for constructing bars later
                     else {
                         if (mm.vsStore.min > e) {
                             mm.vsStore.min = e
                         }
                         if (mm.vsStore.max < e) {
                             mm.vsStore.max = e
+                        }
+                        if (mm.vsStore.valSet.has(e)) {
+                            mm.vsStore.valCount[e]++
+                        } else {
+                            mm.vsStore.valSet.add(e)
+                            mm.vsStore.valCount[e] = 1
                         }
                     }
                     break
@@ -69,7 +77,6 @@ const func = (messageObj) => new Promise(async (res, rej) => {
                             mm.vsStore.push(valToCheck)
                         }
                     }
-
                     break
             }
         }
@@ -78,6 +85,34 @@ const func = (messageObj) => new Promise(async (res, rej) => {
     for (const mm of minmax) {
         if (mm.type === 'in' && mm.vsStore != null) {
             mm.vsStore.sort()
+        } else if (mm.type === 'list') {
+            // Create bars for the histogram
+            let sortedUniqueVals = Array.from(mm.vsStore.valSet)
+            sortedUniqueVals.sort()
+            let absWidth = mm.vsStore.max - mm.vsStore.min
+            let partitionWidth = absWidth / K_PARTITIONS
+            let curUpper = mm.vsStore.min
+
+            let histData = {
+                bars: [],
+                start: mm.vsStore.min,
+                partitionWidth: partitionWidth,
+            }
+
+            for (let i = 0; i < K_PARTITIONS && sortedUniqueVals.length; i++, curUpper += partitionWidth) {
+                let barCount = 0
+                while (sortedUniqueVals.length) {
+                    if (curUpper > sortedUniqueVals[0]) {
+                        barCount += mm.vsStore.valCount[sortedUniqueVals.shift()]
+                    } else {
+                        break
+                    }
+                }
+                histData.bars.push(barCount)
+            }
+            mm.vsStore.histData = histData
+            delete mm.vsStore.valSet
+            delete mm.vsStore.valCount
         }
         update.vsStore[mm.vsKey] = mm.vsStore
     }
