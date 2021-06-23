@@ -39,7 +39,7 @@ const func = (messageObj) => new Promise(async (res, rej) => {
             switch (mm.type) {
                 case 'list':
                     if (mm.vsStore == null)
-                        mm.vsStore = { min: e, max: e, valSet: new Set([e]), valCount: { [e]: 1 } } // valSet and valCount are temporary, used for constructing bars later
+                        mm.vsStore = { min: e, max: e, hist: { [item.productInfo.type]: { valSet: new Set([e]), valCount: { [e]: 1 }, min: e, max: e } } } // hist object, used for constructing bars later
                     else {
                         if (mm.vsStore.min > e) {
                             mm.vsStore.min = e
@@ -47,11 +47,20 @@ const func = (messageObj) => new Promise(async (res, rej) => {
                         if (mm.vsStore.max < e) {
                             mm.vsStore.max = e
                         }
-                        if (mm.vsStore.valSet.has(e)) {
-                            mm.vsStore.valCount[e]++
+                        let prodType = item.productInfo.type
+                        if (mm.vsStore.hist.hasOwnProperty(prodType)) {
+                            if (mm.vsStore.hist[prodType].valSet.has(e)) {
+                                mm.vsStore.hist[prodType].valCount[e]++
+                            } else {
+                                mm.vsStore.hist[prodType].valSet.add(e)
+                                mm.vsStore.hist[prodType].valCount[e] = 1
+                            }
+                            if (mm.vsStore.hist[prodType].min > e)
+                                mm.vsStore.hist[prodType].min = e
+                            if (mm.vsStore.hist[prodType].max < e)
+                                mm.vsStore.hist[prodType].max = e
                         } else {
-                            mm.vsStore.valSet.add(e)
-                            mm.vsStore.valCount[e] = 1
+                            mm.vsStore.hist[prodType] = { valSet: new Set([e]), valCount: { [e]: 1 }, min: e, max: e }
                         }
                     }
                     break
@@ -87,34 +96,35 @@ const func = (messageObj) => new Promise(async (res, rej) => {
             mm.vsStore.sort()
         } else if (mm.type === 'list') {
             // Create bars for the histogram
-            let sortedUniqueVals = Array.from(mm.vsStore.valSet)
-            sortedUniqueVals.sort((a, b) => a - b)
-            let absWidth = mm.vsStore.max - mm.vsStore.min
-            let partitionWidth = absWidth / K_PARTITIONS
-            let curUpper = mm.vsStore.min + partitionWidth
+            for (const pType of Object.keys(mm.vsStore.hist)) {
+                let typeHist = mm.vsStore.hist[pType]
+                let sortedUniqueVals = Array.from(typeHist.valSet)
+                sortedUniqueVals.sort((a, b) => a - b)
+                let absWidth = typeHist.max - typeHist.min
+                let partitionWidth = absWidth / K_PARTITIONS
+                let curUpper = typeHist.min + partitionWidth
 
-            let histData = {
-                bars: [],
-                start: mm.vsStore.min,
-                partitionWidth: partitionWidth,
-            }
-
-            for (let i = 0; i < K_PARTITIONS; i++, curUpper += partitionWidth) {
-                let barCount = 0
-                while (sortedUniqueVals.length) {
-                    if (curUpper >= sortedUniqueVals[0]) {
-                        barCount += mm.vsStore.valCount[sortedUniqueVals.shift()]
-                    } else {
-                        break
-                    }
+                let histData = {
+                    bars: [],
+                    start: typeHist.min,
+                    partitionWidth: partitionWidth,
                 }
-                histData.bars.push(barCount)
-            }
-            mm.vsStore.histData = histData
-            delete mm.vsStore.valSet
-            delete mm.vsStore.valCount
-        }
 
+                for (let i = 0; i < K_PARTITIONS; i++, curUpper += partitionWidth) {
+                    let barCount = 0
+                    while (sortedUniqueVals.length) {
+                        if (curUpper >= sortedUniqueVals[0]) {
+                            barCount += typeHist.valCount[sortedUniqueVals.shift()]
+                        } else {
+                            break
+                        }
+                    }
+                    histData.bars.push(barCount)
+                }
+                mm.vsStore.hist[pType] = histData
+                console.log(histData)
+            }
+        }
         update.vsStore[mm.vsKey] = mm.vsStore
     }
     CategoryModel.findByIdAndUpdate(catKey, update).then(_ => {
