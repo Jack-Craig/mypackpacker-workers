@@ -11,10 +11,12 @@ const handleMessage = (messageObj) => new Promise(async (res, rej) => {
         { '$project': { gearListSaved: '$author.gearListSaved', gearListOwned: '$author.gearListOwned', aid: '$author._id' } },
         { '$redact': { $cond: [{ $in: ['$_id', '$gearListSaved'] }, '$$PRUNE', '$$DESCEND'] } }, // Redact if saved
         { '$redact': { $cond: [{ $in: ['$_id', '$gearListOwned'] }, '$$PRUNE', '$$DESCEND'] } }, // Redact if owned
-        { '$project': { aid: 1 } },
+        { '$project': { aid: 1 } }, // {_id: X, aid: X}
         { '$lookup': { from: 'builds', localField: 'aid', foreignField: 'authorUserID', as: 'packs' } }, // Lookup packs and check if item is in a pack
         { '$unwind': '$packs' },
-        { '$project': { aid: 1, 'build': '$packs.build' } },
+        { '$project': { aid: 1, 'build': '$packs.build' } }, // {_id: X, aid: X, build:[X,X,X]}
+        { '$unwind': '$build' },
+        { '$group': { _id: '$_id', build: { $addToSet: '$build' } } },
         { '$redact': { $cond: [{ $in: ['$_id', '$build'] }, '$$PRUNE', '$$DESCEND'] } }, // Redact if in build
         { '$group': { _id: null, 'ids': { '$push': '$_id' } } }
     ])

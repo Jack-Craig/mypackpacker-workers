@@ -7,7 +7,8 @@ const AnalyticsModel = mongoose.model('analytics', new mongoose.Schema({
     numUsers: Number,
     numPacks: Number,
     numSessionPacks: Number,
-    numGearItems: Number
+    numGearItems: Number,
+    numSessions: Number,
 }, { collection: 'analytics' }))
 
 module.exports = AnalyticsModel

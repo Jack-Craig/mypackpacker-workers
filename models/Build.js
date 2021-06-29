@@ -15,6 +15,10 @@ const BuildModel = mongoose.model('builds', new mongoose.Schema({
     baseWeight: {Type: Number, default: 0},
     wornWeight: {Type: Number, defualt: 0},
     totalWeight: {Type: Number, default: 0}
+<<<<<<< HEAD
 }, {collection: 'builds'}))
+=======
+}, {collection: 'builds', strict:false}))
+>>>>>>> da221d3884a281919d9806be644ffb236c672109
 
 module.exports = BuildModel

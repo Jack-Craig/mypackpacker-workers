@@ -33,7 +33,7 @@ const sendMail = async (template, context, recipient) => {
 }
 
 const handleResetPassword = (messageObj) =>new Promise(async (res, rej) => {
-    
+    sendMail()
 })
 
 module.exports = {
