@@ -64,7 +64,7 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
                 })
                 if (promise == null) {
                     console.log(`[Worker] Message popped, but I do not know what to do with it! Deleting..`)
-                    resolveMessage()
+                    return resolveMessage()
                 }
                 promise.finally(resolveMessage)
             }
