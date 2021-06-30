@@ -48,7 +48,7 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
                         case 'cullPackZombies': promise = handleCullPacks(mJSON); break;
                         case 'updatePackFilters': promise = handleUpdatePackFilters(mJSON); break;
                         case 'updateGearStats': promise = handleUpdateGearStats(mJSON); break;
-                        case 'passwordReset': promise = email(mJSON); break;
+                        case 'passwordReset': promise = email.handleResetPassword(mJSON); break;
                     }
                 } else if (mJSON.isAdminMessage) {
                     promise = handleAdminMessage(mJSON)
