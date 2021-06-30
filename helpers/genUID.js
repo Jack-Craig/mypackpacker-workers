@@ -1,5 +1,4 @@
 const crypto = require('crypto')
-const { symlinkSync } = require('fs')
 
 const N_BYTES = 24
 

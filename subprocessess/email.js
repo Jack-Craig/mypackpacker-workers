@@ -40,7 +40,7 @@ const sendMail = async (template, recipient, subject, context) => {
 const handleResetPassword = (messageObj) => new Promise(async (res, rej) => {
     const user = await UserModel.findOne({ email: messageObj.content }).lean()
     if (!user) {
-        await sendMail('passwordResetValid', messageObj.content, 'Password Reset Notification', {})
+        await sendMail('passwordResetInvalid', messageObj.content, 'Password Reset Notification', {})
         return res()
     }
     const resetUID = genUID()
