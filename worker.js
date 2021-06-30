@@ -57,9 +57,10 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
                         return
                     }
                     if (resp == 1) {
-                        console.log(`[Worker] ${res.id} Deleted`)
+                        const stats = rsmq.getQueueAttributesAsync({qname:QUEUENAME})
+                        console.log(`[Worker] ${res.id} deleted. ${stats.msgs} msgs remain.`)
                     } else {
-                        console.log(`[Worker] ${res.id} Not Found`)
+                        console.log(`[Worker] ${res.id} not found, cannot delete.`)
                     }
                 })
                 if (promise == null) {
