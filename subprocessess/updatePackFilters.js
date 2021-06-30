@@ -57,7 +57,7 @@ const func = (messageObj) => new Promise(async (res, rej) => {
         update.vsStore[mm.vsKey] = mm.vsStore
     }
     await BuildModel.findByIdAndUpdate('6018bdb379eaf0da8c509892', update).lean()
-    console.log('Pushed update')
+    console.log('[PackFilter] Pushed update to pack filters')
     res()
 })
 

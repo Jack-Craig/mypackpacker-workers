@@ -10,7 +10,7 @@ const genUID = () => {
         for (const b of b_buf) {
             hexCoded += b.toString(16)
         }
-        console.log(`[genUID] Generated ${hexCoded} (${b_buf.length} bytes).`)
+        console.log(`[GenUID] Generated ${hexCoded} (${b_buf.length} bytes).`)
         return hexCoded
     } catch (ex) {
         console.error(ex)

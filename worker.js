@@ -24,7 +24,7 @@ let rsmq = new RedisSMQ({
     password: REDIS_PASS
 })
 mongoose.connect(process.env.MONGO_URI).then(() => {
-    console.log('Mongo Connected, Worker Initiated!')
+    console.log('[Worker] Mongo connected, worker ready to receive tasks.')
     setInterval(() => {
         rsmq.receiveMessage({ qname: QUEUENAME }, (err, res) => {
             if (err) {
@@ -57,8 +57,10 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
                         return
                     }
                     if (resp == 1) {
-                        const stats = rsmq.getQueueAttributesAsync({qname:QUEUENAME})
-                        console.log(`[Worker] ${res.id} deleted. ${stats.msgs} msgs remain.`)
+                        rsmq.getQueueAttributesAsync({qname:QUEUENAME}).then(stats => {
+                            console.log(`[Worker] ${res.id} deleted. ${stats.msgs} msgs remain.`)
+                        })
+                        
                     } else {
                         console.log(`[Worker] ${res.id} not found, cannot delete.`)
                     }

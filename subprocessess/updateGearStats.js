@@ -41,7 +41,7 @@ const handleMessage = (mObj) => new Promise(async (res, rej) => {
     const allCats = await SubCategoryModel.find().lean()
     i = 0
     for (cat of allCats) {
-        console.log('Working on ' + cat.displayName)
+        console.log('[GearStats] Working on ' + cat.displayName)
         const filters = [
             { vsKey: 'fP', key: 'lowestPriceRange.minPrice', t: 'list' },
             { vsKey: 'fW', key: 'productInfo.weight', t: 'list' },

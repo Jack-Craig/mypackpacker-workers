@@ -10,9 +10,9 @@ const handleMessage = (messageObj) => new Promise(async (res, rej) => {
         ids.push(idObj._id)
     if (r.length) {
         await BuildModel.deleteMany({ _id: { '$in':  ids} }).lean()
-        console.log(`Destroyed ${r.length} zombie pack(s).`)
+        console.log(`[PackZombie] Destroyed ${r.length} zombie pack(s).`)
     } else {
-        console.log('No Zombie Packs Found! Today is a good day.')
+        console.log('[PackZombie] No Zombie Packs Found! Today is a good day.')
     }
     res()
     // Basically this is going to be really slow, we have to get all packs and check the lists

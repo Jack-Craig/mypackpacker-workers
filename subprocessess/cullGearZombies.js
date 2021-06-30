@@ -22,9 +22,9 @@ const handleMessage = (messageObj) => new Promise(async (res, rej) => {
     ])
     if (r.length) {
         await ProductModel.deleteMany({ _id: { '$in': r[0].ids } }).lean()
-        console.log(`Destroyed ${r[0].ids.length} zombie gear item(s).`)
+        console.log(`[ZombieGear] Destroyed ${r[0].ids.length} zombie gear item(s).`)
     } else {
-        console.log('No Zombie Gear Found! Today is a good day.')
+        console.log('[ZombieGear] No Zombie Gear Found! Today is a good day.')
     }
     res()
     // Basically this is going to be really slow, we have to get all packs and check the lists
