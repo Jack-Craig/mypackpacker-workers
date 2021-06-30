@@ -17,9 +17,10 @@ const handleUpdatePackStats = require('./subprocessess/updatePackStats')
 const handleCullPacks = require('./subprocessess/cullPackZombies')
 const handlePackFilters = require('./subprocessess/updatePackFilters')
 const handleGearStats = require('./subprocessess/updateGearStats')
+const email = require('./subprocessess/email')
 
 mongoose.connect(process.env.MONGO_URI).then(async () => {
-    handleGearStats({content:'pots-and-pans'}).finally(() => {
+    email.handleResetPassword({content:'jackdelcraig@gmail.com'}).finally(() => {
         mongoose.disconnect()
     })
 })

@@ -96,6 +96,8 @@ const func = (messageObj) => new Promise(async (res, rej) => {
             mm.vsStore.sort()
         } else if (mm.type === 'list') {
             // Create bars for the histogram
+            if (mm.vsStore == null)
+                continue
             for (const pType of Object.keys(mm.vsStore.hist)) {
                 let typeHist = mm.vsStore.hist[pType]
                 let sortedUniqueVals = Array.from(typeHist.valSet)

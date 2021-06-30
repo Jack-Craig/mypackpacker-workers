@@ -32,7 +32,7 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
                 return
             }
             if (res.id) {
-                console.log(`Received ${res.id}`)
+                console.log(`[Worker] Received ${res.id}`)
                 let mJSON = JSON.parse(res.message)
                 if (typeof mJSON.isWorkerMessage === 'string')
                     mJSON.isWorkerMessage = mJSON.isWorkerMessage === 'true'
@@ -51,19 +51,22 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
                 } else if (mJSON.isAdminMessage) {
                     promise = handleAdminMessage(mJSON)
                 }
-                promise.finally(() => {
-                    rsmq.deleteMessage({ qname: QUEUENAME, id: res.id }, (err, resp) => {
-                        if (err) {
-                            console.error(err)
-                            return
-                        }
-                        if (resp == 1) {
-                            console.log(`${res.id} Deleted`)
-                        } else {
-                            console.log(`${res.id} Not Found`)
-                        }
-                    })
+                const resolveMessage = () => rsmq.deleteMessage({ qname: QUEUENAME, id: res.id }, (err, resp) => {
+                    if (err) {
+                        console.error(err)
+                        return
+                    }
+                    if (resp == 1) {
+                        console.log(`[Worker] ${res.id} Deleted`)
+                    } else {
+                        console.log(`[Worker] ${res.id} Not Found`)
+                    }
                 })
+                if (promise == null) {
+                    console.log(`[Worker] Message popped, but I do not know what to do with it! Deleting..`)
+                    resolveMessage()
+                }
+                promise.finally(resolveMessage)
             }
         })
     }, 2000)
