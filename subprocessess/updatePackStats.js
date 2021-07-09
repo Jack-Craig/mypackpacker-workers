@@ -65,6 +65,7 @@ const func = (messageObj) => new Promise(async (res, rej) => {
                     }
                     break
                 case 'in':
+                    e = e.trim()
                     if (mm.vsStore == null)
                         mm.vsStore = []
                     if (!helperCache.hasOwnProperty(mm.key))
