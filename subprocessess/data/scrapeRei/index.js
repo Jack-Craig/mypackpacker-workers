@@ -4,7 +4,7 @@ require('dotenv').config()
 const mongoose = require('mongoose')
 const https = require('https');
 
-const ProductModel = require('../../models/Product')
+const ProductModel = require('../../../models/Product')
 const helpers = require('./helpers')
 const parseDetail = require('./parseDetail')
 
@@ -186,7 +186,6 @@ const parserMap = {
 const runCategoryUpdate = async (baseCatUrl, type, categoryId) => {
     let paginatedCatUrl = baseCatUrl
     let productPageUrls = await getProductPageLinks(paginatedCatUrl)
-    console.log(productPageUrls.length)
     while (productPageUrls.length) {
         for (const url of productPageUrls) {
             await updateProduct(url, type, categoryId)
@@ -228,7 +227,13 @@ const updateProduct = async (url, type, categoryId) => {
         return
     }
     console.log(`[Scraper] [REI] [Comp] ${productDetail.displayName}`)
-    await ProductModel.findOneAndUpdate({ 'sources.rei.meta.id': productDetail.sources.rei.meta.id }, productDetail, { upsert: true }).lean()
+    console.log(productDetail.variants)
+    // TODO: Remove comment
+    const newProduct = await ProductModel.findOneAndUpdate({ 'sources.rei.meta.id': productDetail.sources.rei.meta.id }, productDetail, { upsert: true, new: true }).lean()
+    let promiseList = []
+    for (const uid of Object.keys(productDetail.variants))
+        promiseList.push(GID.findByIdAndUpdate(uid, {gearItem: newProduct._id}, {upsert: true}).lean())
+    await Promise.all(promiseList)
 }
 
 const parseProduct = async (url, type, categoryId) => {
@@ -280,19 +285,42 @@ const parseProduct = async (url, type, categoryId) => {
         productWeight = 68
     else
         productWeight = helpers.parseWeight(bw.values[Math.trunc(bw.values.length / 2)])
-    if (productWeight == null) {
+    if (productWeight == null || productWeight == 0) {
         console.log('[Scraper] [REI] [Fail] Bad Weight')
         return null
     }
-    let mpnList = []
-    let upcList = []
+    let variants = {}
     for (const variant of modelObj.variants) {
-        mpnList.push(variant.manufacturersPartNumber)
+        let id = ''
         for (const identifier of variant.identifiers) {
-            if (identifier.type == 'UPC') {
-                upcList.push(identifier.value)
+            if (identifier.type == 'UPC' || identifier.type == 'EPC') {
+                id = identifier.value
                 break
             }
+        }
+        let img = ''
+        for (const imgData of imageObj.media) {
+            if (imgData.color.code === variant.color.code) {
+                img = 'http://rei.com' + imgData.uri
+                break
+            }
+                
+        }
+        variants[id] = {
+            'sources.rei': {
+                price: variant.sellingPrice,
+                url: url,
+                meta: {
+                    id: parseInt(metaObj.itemNumber)
+                }
+            },
+            variantMeta: {
+                size: variant.size,
+                color: variant.color.label
+            },
+            image: img,
+            mpn: variant.manufacturersPartNumber,
+            UPCorEAN: id
         }
     }
 
@@ -300,29 +328,12 @@ const parseProduct = async (url, type, categoryId) => {
         brand: detailObj.brand,
         displayName: metaObj.title,
         categoryID: categoryId,
-        universalId: {
-            mpn: mpnList,
-            upc: upcList,
-        },
-        sources: {
-            rei: {
-                srcId: 'rei',
-                price: {
-                    minPrice: priceObj.min,
-                    maxPrice: priceObj.max,
-                },
-                url: url,
-                meta: {
-                    id: parseInt(metaObj.itemNumber)
-                }
-            }
-        },
+        variants: variants,
         lowestPriceRange: { minPrice: priceObj.min, maxPrice: priceObj.max },
         productInfo: {
             type: type,
             weight: productWeight,
-            pictures: ['http://rei.com/media/' + imageObj.media[0].mediaId],
-            rating: { r: detailObj.reviewsSummary.overall, n: detailObj.reviewsSummary.total },
+            rating: { r: detailObj.reviewsSummary.overall ? detailObj.reviewsSummary.overall : 0 , n: detailObj.reviewsSummary.total ? detailObj.reviewsSummary.total : 0 },
             description: metaObj.shortDesc,
             ...catInfo.extract
         },
@@ -333,8 +344,8 @@ const parseProduct = async (url, type, categoryId) => {
 }
 
 const reiMap = [
-    /**
     ['https://www.rei.com/c/backpacking-packs', 'Backpacking Packs', 'backpacks'],
+    /**
     ['https://www.rei.com/c/day-packs', 'Day Packs', 'backpacks'],
     ['https://www.rei.com/c/hiking-hydration-packs', 'Hydration Packs', 'backpacks'],
     ['https://www.rei.com/c/baby-carrier-packs', 'Other', 'backpacks'],
@@ -385,13 +396,10 @@ const reiMap = [
     ['https://www.rei.com/c/compasses', 'Compasses', 'navigation'],
     ['https://www.rei.com/c/multi-tools', 'Multi Tools', 'knives'],
     ['https://www.rei.com/c/camp-tools', 'Tools', 'knives'],
-    
     ['https://www.rei.com/c/mens-hiking-footwear', 'Boots', 'boots'],
     ['https://www.rei.com/c/womens-hiking-footwear', 'Boots', 'boots'],
     ['https://www.rei.com/c/kids-hiking-footwear', 'Boots', 'boots'],
-    */
     ['https://www.rei.com/c/hiking-socks', '', 'socks'],
-    /**
     ['https://www.rei.com/c/gaiters', 'Gaiters', 'boots'],
     
     ['https://www.rei.com/c/hiking-jackets', '', 'insulation-layers'],
@@ -417,4 +425,4 @@ const run = () => new Promise(async (res, rej) => {
     res()
 })
 
-run()
+module.exports = run

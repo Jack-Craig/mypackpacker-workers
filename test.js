@@ -1,5 +1,6 @@
 const RedisSMQ = require('rsmq')
 const mongoose = require('mongoose')
+const axios = require('axios')
 require('dotenv').config()
 
 const QUEUENAME = 'all_messages'
@@ -18,20 +19,9 @@ const handleCullPacks = require('./subprocessess/cullPackZombies')
 const handlePackFilters = require('./subprocessess/updatePackFilters')
 const handleGearStats = require('./subprocessess/updateGearStats')
 const email = require('./subprocessess/email')
+const handleFOImport = require('./subprocessess/data/flexOffers/index.js')
+const scrapeREI = require('./subprocessess/data/scrapeRei/index')
 
-let rsmq = new RedisSMQ({
-    host: REDIS_HOST,
-    port: REDIS_PORT,
-    ns: NAMESPACE,
-    password: REDIS_PASS
+mongoose.connect(process.env.MONGO_URI).then(() => {
+    scrapeREI().then(()=>console.log('Done'))
 })
-rsmq.getQueueAttributesAsync({ qname: QUEUENAME }).then(res=>{
-    console.log(res)
-})
-/**
-mongoose.connect(process.env.MONGO_URI).then(async () => {
-    email.handleResetPassword({content:'jackdelcraig@gmail.com'}).finally(() => {
-        mongoose.disconnect()
-    })
-})
- */
