@@ -23,5 +23,5 @@ const handleFOImport = require('./subprocessess/data/flexOffers/index.js')
 const scrapeREI = require('./subprocessess/data/scrapeRei/index')
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
-    scrapeREI().then(()=>console.log('Done'))
+    handleFOImport().then(()=>console.log('Done'))
 })

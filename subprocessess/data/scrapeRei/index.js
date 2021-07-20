@@ -227,8 +227,6 @@ const updateProduct = async (url, type, categoryId) => {
         return
     }
     console.log(`[Scraper] [REI] [Comp] ${productDetail.displayName}`)
-    console.log(productDetail.variants)
-    // TODO: Remove comment
     const newProduct = await ProductModel.findOneAndUpdate({ 'sources.rei.meta.id': productDetail.sources.rei.meta.id }, productDetail, { upsert: true, new: true }).lean()
     let promiseList = []
     for (const uid of Object.keys(productDetail.variants))
@@ -312,7 +310,8 @@ const parseProduct = async (url, type, categoryId) => {
                 url: url,
                 meta: {
                     id: parseInt(metaObj.itemNumber)
-                }
+                },
+                srcKey: 'rei'
             },
             variantMeta: {
                 size: variant.size,

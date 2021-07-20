@@ -33,13 +33,35 @@ const handleFOImport = content => new Promise(async (res, rej) => {
             continue
         } else {
             const products = await getProduct(queue.join(','))
-            let sources = []
+            let updateList = []
             for (const prdSrc of products) {
-                //console.log('[FO] Found match! ' + prdSrc.advertiserName + ' ' + queueMap[prdSrc.upCorEAN])
-                //console.log(prdSrc.size + '   ' + prdSrc.color + '   ' + prdSrc.name)
+                console.log('[FO] Found match! ' + prdSrc.advertiserName + ' ' + queueMap[prdSrc.upCorEAN])
+                const fullProduct = await ProductModel.findById(queueMap[prdSrc.upCorEAN]).lean()
+                let update = {
+                    [`variants.${prdSrc.upCorEAN}.sources.${sourceObj[prdSrc.aid]._id}`]:
+                    {
+                        price: prdSrc.price,
+                        url: prdSrc.linkUrl,
+                        meta: {
+                            sku: prdSrc.sku
+                        },
+                        srcKey: sourceObj[prdSrc.aid]._id
+                    },
+                    [`variants.${prdSrc.upCorEAN}.image`]: prdSrc.imageUrl
+                }
+                if (fullProduct) {
+                    if (prdSrc.price < fullProduct.lowestPriceRange.minPrice) {
+                        update['lowestPriceRange.minPrice'] = prdSrc.price
+                    }
+                    if (prdSrc.price > fullProduct.maxPrice) {
+                        update['lowestPriceRange.maxPrice'] = prdSrc.price
+                    }
+                }
+                updateList.push(ProductModel.findByIdAndUpdate(queueMap[prdSrc.upCorEAN], update))
             }
             queue = []
             queueMap = []
+            await Promise.all(updateList)
             await sleep()
         }
     }
